@@ -1,64 +1,38 @@
 "use strict";
-/**
- * @license
- * Copyright 2019 Google LLC. All Rights Reserved.
- * SPDX-License-Identifier: Apache-2.0
- */
+// This example requires the Drawing library. Include the libraries=drawing
+// parameter when you first load the API. For example:
+// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=drawing">
 exports.__esModule = true;
-// In the following example, markers appear when the user clicks on the map.
-// The markers are stored in an array.
-// The user can then click an option to hide, show or delete the markers.
-var map;
-var markers = [];
 function initMap() {
-    var haightAshbury = { lat: 37.769, lng: -122.446 };
-    map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 12,
-        center: haightAshbury,
-        mapTypeId: "terrain"
+    var map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -34.397, lng: 150.644 },
+        zoom: 8
     });
-    // This event listener will call addMarker() when the map is clicked.
-    map.addListener("click", function (event) {
-        addMarker(event.latLng);
+    var drawingManager = new google.maps.drawing.DrawingManager({
+        drawingMode: google.maps.drawing.OverlayType.MARKER,
+        drawingControl: true,
+        drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: [
+                google.maps.drawing.OverlayType.MARKER,
+                google.maps.drawing.OverlayType.CIRCLE,
+                google.maps.drawing.OverlayType.POLYGON,
+                google.maps.drawing.OverlayType.POLYLINE,
+                google.maps.drawing.OverlayType.RECTANGLE,
+            ]
+        },
+        markerOptions: {
+            icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+        },
+        circleOptions: {
+            fillColor: "#ffff00",
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1
+        }
     });
-    // add event listeners for the buttons
-    document
-        .getElementById("show-markers")
-        .addEventListener("click", showMarkers);
-    document
-        .getElementById("hide-markers")
-        .addEventListener("click", hideMarkers);
-    document
-        .getElementById("delete-markers")
-        .addEventListener("click", deleteMarkers);
-    // Adds a marker at the center of the map.
-    addMarker(haightAshbury);
-}
-// Adds a marker to the map and push to the array.
-function addMarker(position) {
-    var marker = new google.maps.Marker({
-        position: position,
-        map: map
-    });
-    markers.push(marker);
-}
-// Sets the map on all markers in the array.
-function setMapOnAll(map) {
-    for (var i = 0; i < markers.length; i++) {
-        markers[i].setMap(map);
-    }
-}
-// Removes the markers from the map, but keeps them in the array.
-function hideMarkers() {
-    setMapOnAll(null);
-}
-// Shows any markers currently in the array.
-function showMarkers() {
-    setMapOnAll(map);
-}
-// Deletes all markers in the array by removing references to them.
-function deleteMarkers() {
-    hideMarkers();
-    markers = [];
+    drawingManager.setMap(map);
 }
 window.initMap = initMap;
