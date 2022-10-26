@@ -10,6 +10,8 @@ let listDiv = document.getElementById("list-container-1");
 let directionsService;
 let directionsRenderer;
 let drawingManager;
+let rafcircle;
+let restoCircleCount;
 const url = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
 function initMap() {
   directionsService = new google.maps.DirectionsService();
@@ -78,6 +80,7 @@ function initMap() {
   });
 
   google.maps.event.addListener(drawingManager, 'circlecomplete', function (circle) {
+    rafcircle = circle;
     var radius = circle.getRadius();
     // console.log(circle.center);
     // console.log(radius);
@@ -313,38 +316,45 @@ function drawOnclick(radVal, centerSpot) {
 }
 
 function callbackv2(results, status) {
+  restoCircleCount = 0;
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
-      var place = results[i];
-      CreateList(place, i);
-      createMarker(results[i]);
+      //var place = results[i];      
+      createMarkerCircle(results[i],i);
     }
-    alert(`There are ${results.length} restaurants`);
+    alert(`There are ${restoCircleCount} restaurants`);
 
   }
+  if(restoCircleCount === 0){
+    listDiv.style.display = "none";
+    listDiv.innerHTML = "";
+  }
+    
 }
 
-function createMarkerCircle(place) {
+function createMarkerCircle(place,i) {
   var placeLoc = place.geometry.location;
-  if (google.maps.geometry.spherical.computeDistanceBetween(placeLoc, circle.getCenter()) > circle.getRadius())
+  if (google.maps.geometry.spherical.computeDistanceBetween(placeLoc, rafcircle.getCenter()) > rafcircle.getRadius())
   // if marker outside circle, don't add it to the map
     return;
-
+  restoCircleCount++;
+  CreateList(place, i);
   var marker = new google.maps.Marker({
     map: map,
     position: place.geometry.location
   });
 
-  google.maps.event.addListener(marker, 'click', function() {
-    var that = this;
-    service.getDetails({
-      placeId: place.place_id
-    }, function(result, status) {
-      infowindow.setContent(result.name + "<br>" + result.formatted_address);
-      infowindow.open(map, that);
-    });
-  });
-  markers.push(marker);
+  // google.maps.event.addListener(marker, 'click', function() {
+  //   var that = this;
+  //   service.getDetails({
+  //     placeId: place.place_id
+  //   }, function(result, status) {
+  //     infowindow.setContent(result.name + "<br>" + result.formatted_address);
+  //     infowindow.open(map, that);
+  //   });
+  // });
+  markersArrayv2.push(marker);
+  //markers.push(marker);
 }
 
 window.initMap = initMap;
