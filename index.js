@@ -10,7 +10,7 @@ let listDiv = document.getElementById("list-container-1");
 let directionsService;
 let directionsRenderer;
 let drawingManager;
-
+const url = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
 function initMap() {
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer();
@@ -30,6 +30,21 @@ function initMap() {
 
     addMarker(e.latLng);
   });
+
+  //let url = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+  let initialMarker = new google.maps.Marker({
+    map: map,
+    position: cebu,
+    draggable: true,
+    icon: {
+      url: url,
+    }
+  });
+
+  //store the marker object drawn on map in global array
+  // setMapOnAll2(null);
+  // markersArray = [];
+  markersArray.push(initialMarker);
 
   document
     .getElementById("rmvMarkerButt")
@@ -64,8 +79,8 @@ function initMap() {
 
   google.maps.event.addListener(drawingManager, 'circlecomplete', function (circle) {
     var radius = circle.getRadius();
-    console.log(circle.center);
-    console.log(radius);
+    // console.log(circle.center);
+    // console.log(radius);
     drawOnclick(radius,circle.center);
     circleArray.push(circle);
   });
@@ -96,7 +111,7 @@ function createMarker(place) {
 }
 
 function addMarker(latLng) {
-  let url = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+  //let url = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
   let marker = new google.maps.Marker({
     map: map,
     position: latLng,
@@ -179,7 +194,7 @@ function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
       var place = results[i];
-      //console.log(place)
+     // console.log(JSON.stringify(place));
       CreateList(place, i);
       createMarker(results[i]);
       //lalagyan.push(place);
@@ -265,33 +280,31 @@ function drawOnclick(radVal, centerSpot) {
 
 
   //let radVal = parseInt(document.getElementById("radius").value);
-  if (!Number.isInteger(radVal))
-    radVal = 500;
-  // var antennasCircle = new google.maps.Circle({
-  //   strokeColor: "#FF0000",
-  //   strokeOpacity: 0.8,
-  //   strokeWeight: 2,
-  //   fillColor: "#FF0000",
-  //   fillOpacity: 0.35,
-  //   map: map,
-  //   center: markersArray[0].position,
-
-  //   radius: radVal
-  // });
-
-  // map.fitBounds(antennasCircle.getBounds());
+  // if (!Number.isInteger(radVal))
+  //   radVal = 500;  
 
   var request = {
     location: centerSpot,
     radius: radVal,
-    type: 'restaurant',
-    keyword: 'restaurant'
-    
+    query: 'restaurant'
   };
 
 
   service = new google.maps.places.PlacesService(map);
-  service.nearbySearch(request, callbackv2);
+  service.textSearch(request, callbackv2);
+
+
+  // var request = {
+  //   location: centerSpot,
+  //   radius: radVal,
+  //   type: 'restaurant',
+  //   keyword: 'restaurant'
+    
+  // };
+
+
+  // service = new google.maps.places.PlacesService(map);
+  // service.nearbySearch(request, callbackv2);
 
 
 
@@ -311,6 +324,27 @@ function callbackv2(results, status) {
   }
 }
 
+function createMarkerCircle(place) {
+  var placeLoc = place.geometry.location;
+  if (google.maps.geometry.spherical.computeDistanceBetween(placeLoc, circle.getCenter()) > circle.getRadius())
+  // if marker outside circle, don't add it to the map
+    return;
 
+  var marker = new google.maps.Marker({
+    map: map,
+    position: place.geometry.location
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    var that = this;
+    service.getDetails({
+      placeId: place.place_id
+    }, function(result, status) {
+      infowindow.setContent(result.name + "<br>" + result.formatted_address);
+      infowindow.open(map, that);
+    });
+  });
+  markers.push(marker);
+}
 
 window.initMap = initMap;
