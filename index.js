@@ -134,9 +134,9 @@ function addMarker(latLng) {
 }
 
 function setMapOnAll(map) {
-  for (var i = 0; i < markersArray.length; i++) {
-    markersArray[i].setMap(map);
-  }
+  // for (var i = 0; i < markersArray.length; i++) {
+  //   markersArray[i].setMap(map);
+  // }
   for (var i = 0; i < markersArrayv2.length; i++) {
     markersArrayv2[i].setMap(map);
   }  
@@ -168,7 +168,7 @@ function removeMarker() {
   listDiv.innerHTML = "";
   listDiv.style.display = "none";
   setMapOnAll(null);
-  markersArray = [];
+  //markersArray = [];
 }
 
 function findNearRestaurants() {
@@ -176,6 +176,8 @@ function findNearRestaurants() {
   listDiv.innerHTML = "";
   setMapOnAllv3(null);
   if (markersArray.length === 0) {
+    listDiv.style.display = "none";
+    listDiv.innerHTML = "";
     alert("Click on Map to select a location");
   }
   else {
